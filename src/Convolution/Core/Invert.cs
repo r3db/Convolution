@@ -1,6 +1,9 @@
 using System;
 using System.Drawing;
 using System.Threading.Tasks;
+using Alea;
+using Alea.CSharp;
+using Alea.Parallel;
 
 namespace Convolution
 {
@@ -26,93 +29,74 @@ namespace Convolution
             return result.Bitmap;
         }
 
-        //// CPU: Using byte Array!
-        //internal static Image RenderCpu2(int width, int height)
-        //{
-        //    var result = new byte[3 * width * height];
+        // CPU: Using byte Array!
+        internal static Image RenderCpu2(Bitmap image)
+        {
+            var width = image.Width;
+            var height = image.Height;
+            var result = FastBitmap.ToByteArray(image);
 
-        //    Parallel.For(0, height, y =>
-        //    {
-        //        for (var x = 0; x < width; ++x)
-        //        {
-        //            ComputeRippleAtOffset(result, x, y, width, height);
-        //        }
-        //    });
+            Parallel.For(0, height, y =>
+            {
+                for (var x = 0; x < width; ++x)
+                {
+                    var offset = 3 * (y * width + x);
+                    ComputeInvertAtOffset(result, offset);
+                }
+            });
 
-        //    return FastBitmap.FromByteArray(result, width, height);
-        //}
+            return FastBitmap.FromByteArray(result, image.Width, image.Height);
+        }
 
-        //// GPU: Using byte Array!
-        //internal static Image RenderGpu1(int width, int height)
-        //{
-        //    var result = new byte[3 * width * height];
-        //    var lp = ComputeLaunchParameters(width, height);
+        // GPU: Using byte Array!
+        internal static Image RenderGpu1(Bitmap image)
+        {
+            var width = image.Width;
+            var height = image.Height;
+            var result = FastBitmap.ToByteArray(image);
+            var lp = ComputeLaunchParameters(width, height);
 
-        //    Gpu.Default.Launch(() =>
-        //    {
-        //        var x = blockDim.x * blockIdx.x + threadIdx.x;
-        //        var y = blockDim.y * blockIdx.y + threadIdx.y;
+            Gpu.Default.Launch(() =>
+            {
+                var x = blockDim.x * blockIdx.x + threadIdx.x;
+                var y = blockDim.y * blockIdx.y + threadIdx.y;
+                var offset = 3 * (y * width + x);
 
-        //        ComputeRippleAtOffset(result, x, y, width, height);
-        //    }, lp);
+                ComputeInvertAtOffset(result, offset);
+            }, lp);
 
-        //    return FastBitmap.FromByteArray(result, width, height);
-        //}
+            return FastBitmap.FromByteArray(result, width, height);
+        }
 
-        //// GPU: Allocating Memory on GPU only!
-        //internal static Image RenderGpu2(int width, int height)
-        //{
-        //    var deviceResult = Gpu.Default.Allocate<byte>(3 * width * height);
-        //    var lp = ComputeLaunchParameters(width, height);
+        // GPU: Parallel.For!
+        internal static Image RenderGpu3(Bitmap image)
+        {
+            var result = FastBitmap.ToByteArray(image);
 
-        //    Gpu.Default.Launch(() =>
-        //    {
-        //        var x = blockDim.x * blockIdx.x + threadIdx.x;
-        //        var y = blockDim.y * blockIdx.y + threadIdx.y;
+            Gpu.Default.For(0, image.Width * image.Height, i =>
+            {
+                var offset = 3 * i;
+                ComputeInvertAtOffset(result, offset);
+            });
 
-        //        ComputeRippleAtOffset(deviceResult, x, y, width, height);
-        //    }, lp);
+            return FastBitmap.FromByteArray(result, image.Width, image.Height);
+        }
 
-        //    return FastBitmap.FromByteArray(Gpu.CopyToHost(deviceResult), width, height);
-        //}
+        // ReSharper disable once SuggestBaseTypeForParameter
+        private static void ComputeInvertAtOffset(byte[] result, int offset)
+        {
+            if (offset < result.Length)
+            {
+                result[offset + 0] = (byte)(255 - result[offset + 0]);
+                result[offset + 1] = (byte)(255 - result[offset + 1]);
+                result[offset + 2] = (byte)(255 - result[offset + 2]);
+            }
+        }
 
-        //// GPU: Parallel.For!
-        //internal static Image RenderGpu3(int width, int height)
-        //{
-        //    var result = new byte[3 * width * height];
-
-        //    Gpu.Default.For(0, width * height, i =>
-        //    {
-        //        var x = i % width;
-        //        var y = i / width;
-        //        var offset = 3 * i;
-
-        //        ComputeRippleAtOffset(result, x, y, width, height);
-        //    });
-
-        //    return FastBitmap.FromByteArray(result, width, height);
-        //}
-
-        //// ReSharper disable once SuggestBaseTypeForParameter
-        //private static void ComputeRippleAtOffset(byte[] result, int x, int y, int width, int height)
-        //{
-        //    var fx = x - width  * 0.5f;
-        //    var fy = y - height * 0.5f;
-
-        //    var d = DeviceFunction.Sqrt(fx * fx + fy * fy);
-        //    var g = (byte)(128f + 127f * DeviceFunction.Cos(d / 10f) / (d / 10f + 1f));
-
-        //    var offset = 3 * (y * width + x);
-
-        //    result[offset + 0] = g;
-        //    result[offset + 1] = g;
-        //    result[offset + 2] = g;
-        //}
-
-        //private static LaunchParam ComputeLaunchParameters(int width, int height)
-        //{
-        //    const int threads = 32;
-        //    return new LaunchParam(new dim3((width + (threads - 1)) / threads, (height + (threads - 1)) / threads), new dim3(threads, threads));
-        //}
+        private static LaunchParam ComputeLaunchParameters(int width, int height)
+        {
+            const int threads = 32;
+            return new LaunchParam(new dim3((width + (threads - 1)) / threads, (height + (threads - 1)) / threads), new dim3(threads, threads));
+        }
     }
 }

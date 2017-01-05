@@ -11,11 +11,10 @@ namespace Convolution
         {
             var image = new Bitmap(Image.FromFile(@"../../input.jpg"));
 
-            Measure(() => Invert.RenderCpu1(image), "convolution.cpu.1.png", "CPU: Using Native GDI+ Bitmap!");
-            //Measure(() => Invert.RenderCpu2(image), "convolution.cpu.2.png", "CPU: Using byte Array!");
-            //Measure(() => Invert.RenderGpu1(image), "convolution.gpu.1.png", "GPU: Using byte Array!");
-            //Measure(() => Invert.RenderGpu2(image), "convolution.gpu.2.png", "GPU: Allocating Memory on GPU only!");
-            //Measure(() => Invert.RenderGpu3(image), "convolution.gpu.3.png", "GPU: Parallel.For!");
+            Measure(() => Invert.RenderCpu1(image), "invert.cpu.1.png", "CPU: Using Native GDI+ Bitmap!");
+            Measure(() => Invert.RenderCpu2(image), "invert.cpu.2.png", "CPU: Using byte Array!");
+            Measure(() => Invert.RenderGpu1(image), "invert.gpu.1.png", "GPU: Using byte Array!");
+            Measure(() => Invert.RenderGpu3(image), "invert.gpu.3.png", "GPU: Parallel.For!");
 
             Console.WriteLine("Done!");
             Console.ReadLine();

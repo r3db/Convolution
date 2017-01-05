@@ -3,21 +3,19 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace WaterRipple
+namespace Convolution
 {
     internal static class Program
     {
         private static void Main()
         {
-            const int scale  = 8;
-            const int width  = scale * 1920;
-            const int height = scale * 960;
+            var image = new Bitmap(Image.FromFile(@"../../input.jpg"));
 
-            Measure(() => WaterRipple.RenderCpu1(width, height), "ripple.cpu.1.png", "CPU: Using Native GDI+ Bitmap!");
-            Measure(() => WaterRipple.RenderCpu2(width, height), "ripple.cpu.2.png", "CPU: Using byte Array!");
-            Measure(() => WaterRipple.RenderGpu1(width, height), "ripple.gpu.1.png", "GPU: Using byte Array!");
-            Measure(() => WaterRipple.RenderGpu2(width, height), "ripple.gpu.2.png", "GPU: Allocating Memory on GPU only!");
-            Measure(() => WaterRipple.RenderGpu3(width, height), "ripple.gpu.3.png", "GPU: Parallel.For!");
+            Measure(() => Invert.RenderCpu1(image), "convolution.cpu.1.png", "CPU: Using Native GDI+ Bitmap!");
+            //Measure(() => Invert.RenderCpu2(image), "convolution.cpu.2.png", "CPU: Using byte Array!");
+            //Measure(() => Invert.RenderGpu1(image), "convolution.gpu.1.png", "GPU: Using byte Array!");
+            //Measure(() => Invert.RenderGpu2(image), "convolution.gpu.2.png", "GPU: Allocating Memory on GPU only!");
+            //Measure(() => Invert.RenderGpu3(image), "convolution.gpu.3.png", "GPU: Parallel.For!");
 
             Console.WriteLine("Done!");
             Console.ReadLine();

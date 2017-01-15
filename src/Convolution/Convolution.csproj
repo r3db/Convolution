@@ -76,6 +76,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\ColorRaw.cs" />
+    <Compile Include="Core\EdgeDetectFilter0.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\PixelMatrix.cs" />
     <Compile Include="Core\Invert.cs" />

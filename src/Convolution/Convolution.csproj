@@ -78,10 +78,10 @@
   <ItemGroup>
     <Compile Include="Core\BitmapUtility.cs" />
     <Compile Include="Core\ColorRaw.cs" />
-    <Compile Include="EdgeDetectFilter0Gpu.cs" />
-    <Compile Include="EdgeDetectFilter0Cpu.cs" />
+    <Compile Include="ConvolutionGpu.cs" />
+    <Compile Include="ConvolutionCpu.cs" />
     <Compile Include="Core\FastBitmap.cs" />
-    <Compile Include="Core\PixelMatrix.cs" />
+    <Compile Include="Core\ConvolutionFilter.cs" />
     <Compile Include="Core\Invert.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>

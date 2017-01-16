@@ -11,17 +11,14 @@ namespace Convolution
         private static void Main()
         {
             var image = new Bitmap(Image.FromFile(@"../../input.jpg"));
+            var filter = ConvolutionFilter.EdgeDetectFilter0;
 
-            //Measure(() => EdgeDetectFilter0Cpu.Render1(image), "edge-detect-filter-0.cpu.1.png", false, "CPU: Using Native GDI+ Bitmap!");
-            //Measure(() => EdgeDetectFilter0Cpu.Render2(image), "edge-detect-filter-0.cpu.2.png", false, "CPU: Using Custom Array!");
+            Measure(() => ConvolutionCpu.Render1(image, filter), "edge-detect-filter-0.cpu.1.png", false, "CPU: Using Native GDI+ Bitmap!");
+            Measure(() => ConvolutionCpu.Render2(image, filter), "edge-detect-filter-0.cpu.2.png", false, "CPU: Using Custom Array!");
 
-            Measure(() => EdgeDetectFilter0Gpu.Render1(image), "edge-detect-filter-0.gpu.1.png", true,  "GPU: Alea Parallel.For!");
-            //Measure(() => EdgeDetectFilter0Gpu.RenderGpu1(image), "edge-detect-filter-0.gpu.1.png", true,  "GPU: Custom!");
-
-            //Measure(() => Invert.RenderCpu1(image), "invert.cpu.1.png", false, "CPU: Using Native GDI+ Bitmap!");
-            //Measure(() => Invert.Render2(image), "invert.cpu.2.png", false, "CPU: Using Custom Array!");
-            //Measure(() => Invert.RenderGpu1(image), "invert.gpu.1.png", true, "GPU: Using Custom Array!");
-            //Measure(() => Invert.RenderGpu3(image), "invert.gpu.3.png", true, "GPU: Parallel.For!");
+            Measure(() => ConvolutionGpu.Render1(image, filter), "edge-detect-filter-0.gpu.1.png", true, "GPU: Alea Parallel.For!");
+            Measure(() => ConvolutionGpu.Render2(image, filter), "edge-detect-filter-0.gpu.2.png", true, "GPU: Custom!");
+            Measure(() => ConvolutionGpu.Render3(image, filter), "edge-detect-filter-0.gpu.3.png", true,  "GPU: Fixed Block Size!");
 
             Console.WriteLine("Done!");
             Console.ReadLine();

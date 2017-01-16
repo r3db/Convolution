@@ -4,27 +4,26 @@ using System.Threading.Tasks;
 
 namespace Convolution
 {
-    internal static class EdgeDetectFilter0Cpu
+    internal static class ConvolutionCpu
     {
         // Native GDI+ Bitmap!
-        internal static Image Render1(Bitmap image)
+        internal static Image Render1(Bitmap image, ConvolutionFilter filter)
         {
             var width = image.Width;
             var height = image.Height;
 
             var source = new FastBitmap(image);
             var result = new FastBitmap(image.Width, image.Height);
-            var matrix = PixelMatrix.EdgeDetectFilter0;
 
-            Parallel.For(0, source.Height, y =>
+            Parallel.For(0, height, y =>
             {
-                for (var x = 0; x < source.Width; ++x)
+                for (var x = 0; x < width; ++x)
                 {
                     var neighbours = GetNeighbours(x, y, width, height, (nx, ny, i) => (nx >= 0 && nx < width && ny >= 0 && ny < height) == false
                         ? Color.FromArgb(0, 0, 0)
                         : source.GetPixel(nx, ny));
 
-                    result.SetPixel(x, y, matrix.Compute(neighbours));
+                    result.SetPixel(x, y, filter.Compute(neighbours));
                 }
             });
 
@@ -32,14 +31,13 @@ namespace Convolution
         }
 
         // Custom Array!
-        internal static Image Render2(Bitmap image)
+        internal static Image Render2(Bitmap image, ConvolutionFilter filter)
         {
             var width = image.Width;
             var height = image.Height;
 
             var source = BitmapUtility.ToColorArray(image);
             var result = new ColorRaw[width * height];
-            var matrix = PixelMatrix.EdgeDetectFilter0;
 
             Parallel.For(0, height, y =>
             {
@@ -51,7 +49,7 @@ namespace Convolution
                         ? ColorRaw.FromRgb(0, 0, 0)
                         : source[i]);
 
-                    result[offset] = PixelMatrix.ComputeRaw(neighbours, matrix.Filter, matrix.Factor, matrix.Offset);
+                    result[offset] = filter.Compute(neighbours);
                 }
             });
 

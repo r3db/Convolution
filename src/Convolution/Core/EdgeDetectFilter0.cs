@@ -1,6 +1,5 @@
 using System;
 using System.Drawing;
-using System.Threading.Tasks;
 using Alea;
 using Alea.CSharp;
 
@@ -9,50 +8,6 @@ namespace Convolution
     // Todo: Check this out: https://www.evl.uic.edu/sjames/cs525/final.html
     internal static class EdgeDetectFilter0
     {
-        // CPU: Using Native GDI+ Bitmap!
-        internal static Image RenderCpu1(Bitmap image)
-        {
-            var width = image.Width;
-            var height = image.Height;
-
-            var source = new FastBitmap(image);
-            var result = new FastBitmap(image.Width, image.Height);
-            var matrix = PixelMatrix.EdgeDetectFilter0;
-
-            Parallel.For(0, source.Height, y =>
-            {
-                for (var x = 0; x < source.Width; ++x)
-                {
-                    result.SetPixel(x, y, matrix.Compute(GetNeighbours(source, x, y, width, height)));
-                }
-            });
-
-            return result.Bitmap;
-        }
-
-        // CPU: Using byte Array!
-        internal static Image RenderCpu2(Bitmap image)
-        {
-            var width = image.Width;
-            var height = image.Height;
-
-            var source = FastBitmap.ToColorArray(image);
-            var result = new ColorRaw[width * height];
-            var matrix = PixelMatrix.EdgeDetectFilter0;
-
-            Parallel.For(0, height, y =>
-            {
-                for (var x = 0; x < width; ++x)
-                {
-                    var offset = y * width + x;
-                    result[offset] = PixelMatrix.ComputeRaw(GetNeighboursRaw(source, x, y, width, height), matrix.Filter,
-                        matrix.Factor, matrix.Offset);
-                }
-            });
-
-            return FastBitmap.FromColorArray(result, image.Width, image.Height);
-        }
-
         // GPU: Using byte Array!
         [GpuManaged]
         internal static Image RenderGpu1(Bitmap image)
@@ -60,7 +15,7 @@ namespace Convolution
             var width = image.Width;
             var height = image.Height;
 
-            var source = FastBitmap.ToColorArray(image);
+            var source = BitmapUtility.ToColorArray(image);
             var result = new ColorRaw[width * height];
             var matrix = PixelMatrix.EdgeDetectFilter0;
             var mFilter = matrix.Filter;
@@ -122,7 +77,7 @@ namespace Convolution
                 }
             }, lp);
 
-            return FastBitmap.FromColorArray(result, image.Width, image.Height);
+            return BitmapUtility.FromColorArray(result, image.Width, image.Height);
         }
 
         //// GPU: Parallel.For!
@@ -203,6 +158,11 @@ namespace Convolution
         private static bool IsValid(int x, int y, int width, int height)
         {
             return x >= 0 && x < width && y >= 0 && y < height;
+        }
+
+        private static bool IsValid(int i, int width, int height)
+        {
+            return i >= 0 && i < width * height;
         }
     }
 }

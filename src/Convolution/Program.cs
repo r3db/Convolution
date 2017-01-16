@@ -11,14 +11,34 @@ namespace Convolution
         private static void Main()
         {
             var image = new Bitmap(Image.FromFile(@"../../input.jpg"));
-            var filter = ConvolutionFilter.EdgeDetectFilter0;
 
-            Measure(() => ConvolutionCpu.Render1(image, filter), "edge-detect-filter-0.cpu.1.png", false, "CPU: Using Native GDI+ Bitmap!");
-            Measure(() => ConvolutionCpu.Render2(image, filter), "edge-detect-filter-0.cpu.2.png", false, "CPU: Using Custom Array!");
+            var filters = new[]
+            {
+                ConvolutionFilter.EmptyFilter,
+                ConvolutionFilter.GaussianBlurFilter,
+                ConvolutionFilter.SharpenFilter,
+                ConvolutionFilter.MeanRemovalFilter,
+                ConvolutionFilter.EmbossLaplascianFilter,
+                ConvolutionFilter.EdgeDetectFilter0,
+                ConvolutionFilter.EdgeDetectFilter1,
+                ConvolutionFilter.EdgeDetectFilter2,
+                ConvolutionFilter.SobelX1,
+                ConvolutionFilter.SobelX2,
+                ConvolutionFilter.SobelY1,
+                ConvolutionFilter.SobelY2,
+            };
 
-            Measure(() => ConvolutionGpu.Render1(image, filter), "edge-detect-filter-0.gpu.1.png", true, "GPU: Alea Parallel.For!");
-            Measure(() => ConvolutionGpu.Render2(image, filter), "edge-detect-filter-0.gpu.2.png", true, "GPU: Custom!");
-            Measure(() => ConvolutionGpu.Render3(image, filter), "edge-detect-filter-0.gpu.3.png", true,  "GPU: Fixed Block Size!");
+            for (int i = 0; i < filters.Length; i++)
+            {
+                var filter = filters[i];
+
+                Measure(() => ConvolutionCpu.Render1(image, filter), $"{i}.cpu.1.png", false, "CPU: Using Native GDI+ Bitmap!");
+                Measure(() => ConvolutionCpu.Render2(image, filter), $"{i}.cpu.2.png", false, "CPU: Using Custom Array!");
+
+                Measure(() => ConvolutionGpu.Render1(image, filter), $"{i}.gpu.1.png", true,  "GPU: Alea Parallel.For!");
+                Measure(() => ConvolutionGpu.Render2(image, filter), $"{i}.gpu.2.png", true,  "GPU: Custom!");
+                Measure(() => ConvolutionGpu.Render3(image, filter), $"{i}.gpu.3.png", true,  "GPU: Fixed Block Size!");
+            }
 
             Console.WriteLine("Done!");
             Console.ReadLine();

@@ -82,7 +82,6 @@
     <Compile Include="ConvolutionCpu.cs" />
     <Compile Include="Core\FastBitmap.cs" />
     <Compile Include="Core\ConvolutionFilter.cs" />
-    <Compile Include="Core\Invert.cs" />
     <Compile Include="Program.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -40,6 +40,7 @@ namespace Convolution
         }
 
         // Helpers!
+        // ReSharper disable once SuggestBaseTypeForParameter
         private static void ComputeEdgeDetectFilter0AtOffset(deviceptr<ColorRaw> input, deviceptr<ColorRaw> result, int resultLength, float[] filter, float mFactor, float mOffset, int i, int width)
         {
             var cx = i % width;

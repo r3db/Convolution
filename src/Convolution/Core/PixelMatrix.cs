@@ -9,7 +9,7 @@ namespace Convolution
         private readonly float _factor;
         private readonly float _offset;
 
-        public PixelMatrix(float[] filter, int factor, int offset)
+        private PixelMatrix(float[] filter, int factor, int offset)
         {
             _filter = filter;
             _factor = factor;
@@ -40,6 +40,7 @@ namespace Convolution
 
         public static PixelMatrix SobelY2 => new PixelMatrix(new float[] { 1, 0, -1, 2, 0, -2, 1, 0, -1, }, 1, 0);
 
+        // Todo: Remove!
         public float[] Filter => _filter;
         public float Factor => _factor;
         public float Offset => _offset;

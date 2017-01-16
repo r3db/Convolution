@@ -14,8 +14,9 @@ namespace Convolution
 
             Measure(() => EdgeDetectFilter0Cpu.Render1(image), "edge-detect-filter-0.cpu.1.png", false, "CPU: Using Native GDI+ Bitmap!");
             Measure(() => EdgeDetectFilter0Cpu.Render2(image), "edge-detect-filter-0.cpu.2.png", false, "CPU: Using Custom Array!");
-            //Measure(() => EdgeDetectFilter0.RenderGpu3(image), "edge-detect-filter-0.gpu.3.png", true, "GPU: Parallel.For!");
-            //Measure(() => EdgeDetectFilter0.RenderGpu1(image), "edge-detect-filter-0.gpu.1.png", true,  "GPU: Custom!");
+
+            Measure(() => EdgeDetectFilter0Gpu.Render1(image), "edge-detect-filter-0.gpu.1.png", true,  "GPU: Alea Parallel.For!");
+            //Measure(() => EdgeDetectFilter0Gpu.RenderGpu1(image), "edge-detect-filter-0.gpu.1.png", true,  "GPU: Custom!");
 
             //Measure(() => Invert.RenderCpu1(image), "invert.cpu.1.png", false, "CPU: Using Native GDI+ Bitmap!");
             //Measure(() => Invert.Render2(image), "invert.cpu.2.png", false, "CPU: Using Custom Array!");
